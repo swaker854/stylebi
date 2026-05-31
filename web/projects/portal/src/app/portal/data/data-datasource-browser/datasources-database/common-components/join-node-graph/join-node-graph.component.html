@@ -18,9 +18,9 @@
 <div class="node-graph-container" [class.bd-selected-cell]="selected"
   [class.physical-graph-node-selected]="selected" (mousedown)="selectNode($event)">
   <div class="graph-label-content jsplumb-draggable-handle"
-    [class.ws-header-secondary-bg-color]="!isAutoAliasNode() && graph.alias"
-    [class.ws-header-primary-bg-color]="isAutoAliasNode()"
-    (mouseup)="showEndpoint($event)">
+       [class.ws-header-secondary-bg-color]="!isAutoAliasNode() && graph.alias"
+       [class.physical-graph-node__header--auto-alias]="isAutoAliasNode()"
+       (mouseup)="showEndpoint($event)">
 
     @if (graph.sql) {
       <i aria-hidden="true" class="file-sql-icon"></i>
@@ -29,6 +29,12 @@
     <div class="unselectable-canvas graph-label-text text-overflow"
       [title]="graph.node.tooltip" [class.font-weight-bold]="graph.showColumns"
     >{{graph.node.label}}</div>
+
+    <span *ngIf="isAutoAliasNode()"
+          class="physical-graph-node__auto-alias-badge"
+          title="_#(Auto alias generated for joins)">
+      _#(Auto)
+    </span>
 
     <i aria-hidden="true" class="down-arrow-button cursor-pointer"
       [ngClass]="graph.showColumns ? 'upward-icon' : 'down-arrow-button downward-icon'"

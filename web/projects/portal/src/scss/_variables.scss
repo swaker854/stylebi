@@ -51,12 +51,12 @@ $shell-secondary: #7455A8;
 $shell-secondary-active: #4E3378;
 $shell-secondary-soft: #EDE8F5;
 $shell-secondary-text: #3D2070;
-$shell-third: #B54B6E;
-$shell-third-soft: #F5DCEA;
-$shell-third-text: #6B1F3A;
-$shell-fourth: #1D8A86;
-$shell-fourth-soft: #D5EDEC;
-$shell-fourth-text: #0F4E4C;
+$shell-third: #1D8A86;
+$shell-third-soft: #D5EDEC;
+$shell-third-text: #0F4E4C;
+$shell-fourth: #964F9C;
+$shell-fourth-soft: #ECDDEF;
+$shell-fourth-text: #4A2150;
 
 // Semantic families
 $shell-success: #2E8B57;
@@ -119,10 +119,10 @@ $inet-text-dark: $shell-text-strong;
 $inet-text-light: $inverse-text-color;
 
 // Support-family aliases
-$third-color: $shell-third;                // constrained rose support family for recurring structural meaning
+$third-color: $shell-third;                // constrained teal support family for recurring structural meaning
 $third-color-light: $shell-third-soft;
 $third-color-text: $shell-third-text;
-$fourth-color: $shell-fourth;             // constrained teal support family for recurring structural meaning
+$fourth-color: $shell-fourth;             // constrained orchid support family for recurring structural meaning
 $fourth-color-light: $shell-fourth-soft;
 $fourth-color-text: $shell-fourth-text;
 
@@ -302,7 +302,7 @@ $sqrt2: 1.41421356;
   --inet-composer-navbar-text-color: var(--inet-navbar-text-color);
   --inet-composer-navbar-bg-color: var(--inet-navbar-bg-color);
   --inet-composer-navbar-hover-text-color: var(--inet-navbar-hover-text-color, var(--inet-composer-navbar-text-color));
-  --inet-composer-navbar-hover-bg-color: var(--inet-navbar-hover-bg-color, var(--inet-secondary-color));
+  --inet-composer-navbar-hover-bg-color: var(--inet-navbar-hover-bg-color, #{$navbar-hover-overlay});
 
   --inet-nav-tabs-text-color: var(--inet-text-color);
   --inet-nav-tabs-bg-color: var(--inet-shell-surface-subtle);
@@ -323,10 +323,10 @@ $sqrt2: 1.41421356;
   --inet-graph-connection-color: #{$inet-gray4};
   --inet-graph-connection-warning-color: #{$primary-light};
   --inet-schema-connection-color: #{$inet-gray2};
-  --inet-schema-column-connected-bg-color: var(--inet-fourth-color);
+  --inet-schema-column-connected-bg-color: var(--inet-fourth-soft-color);
   --inet-schema-column-compatible-bg-color: var(--inet-secondary-color-light);
   --inet-schema-column-incompatible-bg-color: #{$primary-light};
-  --inet-ws-header-primary-bg-color: var(--inet-third-color);
+  --inet-ws-header-primary-bg-color: var(--inet-third-soft-color);
   --inet-ws-header-secondary-bg-color: var(--inet-third-color-light);
   --inet-ws-table-odd-row-bg-color: #{$worksheet-row-odd-bg};
   --inet-ws-table-even-row-bg-color: #{$worksheet-row-even-bg};
