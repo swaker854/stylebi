@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StyleBI — Button Consolidation Plan</title>
+<style>
+  :root{
+    --canvas:#F8F7F4;--surface:#FFFFFF;--subtle:#F1EFEA;--hover:#ECE9E2;
+    --border:#D9D5CC;--border-strong:#C4BFB4;--text:#35342F;--muted:#6A685F;
+    --primary:#E58A2A;--primary-dark:#C96F12;--primary-soft:#F6E2C8;
+    --danger:#C84C4C;--danger-soft:#F7DEDE;--danger-text:#7F2E2E;
+    --good:#1F8A5B;--good-soft:#DFF1E8;
+    --font:ui-sans-serif,system-ui,"Segoe UI",Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{background:var(--canvas);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;padding:56px 32px 120px;}
+  .wrap{max-width:980px;margin:0 auto;}
+
+  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;}
+  h1{font-size:32px;line-height:1.15;font-weight:680;letter-spacing:-.015em;margin:0 0 14px;}
+  .lede{font-size:16px;color:var(--muted);max-width:70ch;margin:0;}
+  .meta{margin-top:18px;font-family:var(--mono);font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 18px;}
+
+  section{margin-top:52px;}
+  h2{font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 4px;}
+  .sec-sub{font-size:15px;color:var(--text);margin:0 0 22px;max-width:74ch;}
+
+  /* shared button impl (faithful to decision table) */
+  .btn{--b-bg:transparent;--b-fg:var(--text);--b-bd:transparent;--b-bg-h:var(--hover);--b-fg-h:var(--text);--b-bd-h:transparent;
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;height:30px;padding:0 12px;border-radius:3px;
+    font-family:var(--font);font-size:12px;font-weight:500;line-height:1;color:var(--b-fg);background:var(--b-bg);border:1px solid var(--b-bd);cursor:pointer;white-space:nowrap;}
+  .btn:hover{color:var(--b-fg-h);background:var(--b-bg-h);border-color:var(--b-bd-h);}
+  .btn-primary{--b-bg:var(--primary);--b-fg:#fff;--b-bd:var(--primary);--b-bg-h:var(--primary-dark);--b-bd-h:var(--primary-dark);--b-fg-h:#fff;}
+  .btn-rec-secondary{--b-bg:var(--subtle);--b-fg:var(--text);--b-bd:transparent;--b-bg-h:var(--hover);--b-bd-h:transparent;}
+  .btn-rec-ghost{--b-bg:transparent;--b-fg:var(--text);--b-bd:transparent;--b-bg-h:var(--hover);--b-bd-h:transparent;}
+  .btn-rec-danger{--b-bg:var(--danger);--b-fg:#fff;--b-bd:var(--danger);--b-bg-h:#B04444;--b-bd-h:#B04444;--b-fg-h:#fff;}
+
+  /* tables */
+  table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:14px;}
+  th,td{padding:13px 16px;text-align:left;vertical-align:top;border-bottom:1px solid var(--border);}
+  thead th{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--subtle);}
+  tbody tr:last-child td{border-bottom:0;}
+  code{font-family:var(--mono);font-size:12.5px;background:var(--subtle);border:1px solid var(--border);border-radius:4px;padding:1px 6px;color:var(--text);white-space:nowrap;}
+  .arrow{color:var(--muted);padding:0 2px;}
+  .keep{color:var(--good);font-weight:600;}
+  .note{color:var(--muted);}
+
+  /* tiers strip */
+  .tiers{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
+  @media(max-width:760px){.tiers{grid-template-columns:1fr 1fr;}}
+  .tier{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;}
+  .tier .tlabel{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+  .tier .tname{font-size:15px;font-weight:650;margin:3px 0 12px;}
+  .tier .tclass{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:12px;display:block;}
+
+  /* steps */
+  ol.steps{counter-reset:s;list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px;}
+  ol.steps li{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px 18px 16px 56px;}
+  ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:16px;top:16px;width:26px;height:26px;border-radius:50%;background:var(--primary-soft);color:#7a4a10;font-weight:680;font-size:13px;display:flex;align-items:center;justify-content:center;}
+  ol.steps b{font-weight:650;}
+  ol.steps .who{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.04em;padding:2px 8px;border-radius:999px;border:1px solid var(--border);background:var(--subtle);margin-left:8px;vertical-align:middle;}
+  ol.steps p{margin:6px 0 0;font-size:13.5px;color:var(--muted);}
+
+  /* decisions callout */
+  .decisions{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--primary);border-radius:8px;padding:18px 22px;}
+  .decisions h3{font-size:14px;margin:0 0 10px;font-weight:650;}
+  .decisions ul{margin:0;padding-left:18px;}
+  .decisions li{font-size:13.5px;color:var(--text);margin:6px 0;}
+  .decisions li span{color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">StyleBI Shell · Developer Handoff</p>
+    <h1>Button Consolidation Plan</h1>
+    <p class="lede">A short, actionable plan to collapse the 5 shipped button classes into <b>3 emphasis tiers + 2 modifiers</b>, per §5 of the Button Decision Table. Token fixes resolve the §4 flags. Mechanical renames are codemod-safe; the cases that need a human are listed explicitly at the end.</p>
+    <div class="meta">
+      <span>source: Button Decision Table §4–5</span>
+      <span>scope: web/projects/portal · web/projects/shared</span>
+      <span>est: 1 codemod PR + 1 token PR + 1 lint rule</span>
+    </div>
+  </header>
+
+  <!-- TARGET SYSTEM -->
+  <section>
+    <h2>1 · Target system</h2>
+    <p class="sec-sub">The end state. Neutral buttons step down by <b>fill weight</b> (accent → subtle gray → transparent), never by border.</p>
+    <div class="tiers">
+      <div class="tier"><div class="tlabel">Tier 1</div><div class="tname">Primary</div><button class="btn btn-primary">Save</button><span class="tclass">.btn-primary</span></div>
+      <div class="tier"><div class="tlabel">Tier 2</div><div class="tname">Secondary</div><button class="btn btn-rec-secondary">Import</button><span class="tclass">.btn-secondary</span></div>
+      <div class="tier"><div class="tlabel">Tier 3</div><div class="tname">Ghost</div><button class="btn btn-rec-ghost">Add field</button><span class="tclass">.btn-ghost</span></div>
+      <div class="tier"><div class="tlabel">Modifier</div><div class="tname">Icon</div><button class="btn btn-rec-ghost" style="width:30px;padding:0;">⋮</button><span class="tclass">.btn-icon (square ghost)</span></div>
+      <div class="tier"><div class="tlabel">Modifier</div><div class="tname">Danger</div><button class="btn btn-rec-danger">Delete</button><span class="tclass">.is-danger</span></div>
+    </div>
+  </section>
+
+  <!-- CLASS MIGRATION MAP -->
+  <section>
+    <h2>2 · Class migration map</h2>
+    <p class="sec-sub">Every shipped class and where it lands. The first three rows are safe global find-and-replace; the last two require per-call-site judgment (see §5).</p>
+    <table>
+      <thead><tr><th style="width:30%;">Today</th><th style="width:30%;">Becomes</th><th>Migration</th></tr></thead>
+      <tbody>
+        <tr><td><code>.btn-primary</code></td><td><code>.btn-primary</code> <span class="keep">keep</span></td><td class="note">No change. Enforce "one per view" via lint.</td></tr>
+        <tr><td><code>.btn-secondary</code> + <code>.btn-light</code></td><td><span class="arrow">→</span> <code>.btn-secondary</code></td><td class="note">Merge. Retire <code>.btn-light</code> and its <code>--inet-button-light-*</code> tokens. Safe replace.</td></tr>
+        <tr><td><code>.btn-default</code> + <code>.btn-light-no-bg</code></td><td><span class="arrow">→</span> <code>.btn-ghost</code></td><td class="note">Merge into one transparent-till-hover class. Safe replace.</td></tr>
+        <tr><td><code>.btn-icon</code></td><td><span class="arrow">→</span> <code>.btn-ghost.btn-icon</code></td><td class="note">Keep name; give it a real square spec (size + centering, borderless at rest). Drop the borrowed <code>.btn-light-no-bg</code>.</td></tr>
+        <tr><td><code>.btn-danger</code></td><td><span class="arrow">→</span> <code>.btn-primary.is-danger</code> <span class="note">or</span> <code>.btn-ghost.is-danger</code></td><td class="note"><b>Needs judgment per site:</b> destructive CTA vs. inline/row action. Do not blind-replace.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- TOKEN WORK -->
+  <section>
+    <h2>3 · Token &amp; CSS work (resolves §4 flags)</h2>
+    <p class="sec-sub">Do this in the stylesheet before the codemod, so renamed call-sites land on correct visuals.</p>
+    <table>
+      <thead><tr><th style="width:34%;">Flag</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td><code>.btn-default</code> paints a border despite a <code>transparent</code> token</td><td>Make the selector honour its own token → true ghost (no rest border). Folds cleanly into <code>.btn-ghost</code>.</td></tr>
+        <tr><td><code>.btn-light</code> is undocumented, overlaps Secondary</td><td>Retire the class and the <code>--inet-button-light-*</code> family; its call-sites become <code>.btn-secondary</code>.</td></tr>
+        <tr><td>Danger has no token family; low-contrast hover</td><td>Add <code>--inet-button-danger-*</code>. CTA = solid red + white text; inline = transparent + soft-red hover.</td></tr>
+        <tr><td><code>.btn-icon</code> has no visual contract</td><td>Give it an explicit square spec (width=height, centered glyph, hover-fill) instead of borrowing <code>.btn-light-no-bg</code>.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ENUMERATION SCRIPT -->
+  <section>
+    <h2>4 · The enumeration script (the foundation)</h2>
+    <p class="sec-sub">Before any consolidation, one script walks the codebase and dumps <b>every button call-site</b> to a table. It is the single artifact the rest of the plan leans on — write it once, use it three times.</p>
+
+    <table style="margin-bottom:22px;">
+      <thead><tr><th style="width:24%;">What it does</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td><b>Scans</b></td><td class="note">All <code>*.component.html</code> templates under <code>web/projects/portal</code> + <code>shared</code>. Must catch dynamic forms too — <code>[class.btn-primary]</code>, <code>[ngClass]</code>, and classes assembled in <code>.ts</code> — not just static <code>class="…"</code>. (This is why grep alone isn't enough; use an Angular-aware / AST parse.)</td></tr>
+        <tr><td><b>Records</b></td><td class="note">Per call-site: file, line, current variant class, surrounding context (dialog footer / header / toolbar / row), and sibling button variants in the same container.</td></tr>
+        <tr><td><b>Flags</b></td><td class="note">Derived columns the §2 rules can assert on — e.g. <code>2+ primaries in one footer</code>, <code>danger present</code>, <code>dismiss-variant ≠ canonical</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <p class="sec-sub">Example of the output it should produce (real row, from the codebase):</p>
+    <table>
+      <thead><tr><th>File</th><th>Variant</th><th>Context</th><th>Siblings</th><th>Flag</th></tr></thead>
+      <tbody>
+        <tr><td class="note"><code>image-format-select…html</code> : 22</td><td><code>btn-primary</code></td><td class="note">dialog footer</td><td class="note">primary, primary, secondary</td><td><b style="color:var(--danger)">2+ primaries</b></td></tr>
+        <tr><td class="note"><code>image-format-select…html</code> : 23</td><td><code>btn-primary</code></td><td class="note">dialog footer</td><td class="note">primary, primary, secondary</td><td><b style="color:var(--danger)">2+ primaries</b></td></tr>
+        <tr><td class="note"><code>image-format-select…html</code> : 24</td><td><code>btn-secondary</code></td><td class="note">dialog footer (dismiss)</td><td class="note">primary, primary, secondary</td><td><b style="color:var(--primary-dark)">dismiss ≠ canonical</b></td></tr>
+      </tbody>
+    </table>
+
+    <p class="sec-sub" style="margin-top:22px;">It earns its keep three times over: <b>(1)</b> it's the complete inventory design works from in §6; <b>(2)</b> its flag logic <em>is</em> the lint rule in §5 step 5; <b>(3)</b> re-running it after the codemod proves the migration is complete. <b>Build it first — it's the most parallel-safe task and blocks nothing.</b></p>
+  </section>
+
+  <!-- SEQUENCE -->
+  <section>
+    <h2>5 · Sequence</h2>
+    <ol class="steps">
+      <li><b>Build the enumeration script</b> <span class="who">Dev</span><p>§4. Parallel-safe, depends on nothing. Produces the full call-site inventory design needs and the flag logic the lint rule reuses.</p></li>
+      <li><b>Land the CSS/token changes</b> <span class="who">Dev</span><p>§3, behind the existing class names. No call-site touched yet; visuals for ghost/danger/icon become correct.</p></li>
+      <li><b>Run the safe codemod</b> <span class="who">Dev</span><p>The three mechanical rows in §2: <code>btn-light → btn-secondary</code>, <code>btn-default → btn-ghost</code>, <code>btn-light-no-bg → btn-ghost</code>. One PR, fully reversible.</p></li>
+      <li><b>Resolve the judgment cases</b> <span class="who">Design + Dev</span><p>Work the §6 list against the script's inventory: every footer with 2+ primaries, every <code>.btn-danger</code>, every Cancel variant. Each gets a decided variant + reason.</p></li>
+      <li><b>Add the lint rule</b> <span class="who">Dev</span><p>Encode the §2 rules as an ESLint/template check so violations can't return — built directly on the §4 script's flag logic.</p></li>
+    </ol>
+  </section>
+
+  <!-- DECISIONS NEEDED -->
+  <section>
+    <h2>6 · Decisions needed from design (the non-mechanical part)</h2>
+    <div class="decisions">
+      <h3>These cannot be codemod'd — they need an intent call before code:</h3>
+      <ul>
+        <li><b>Two-primary footers.</b> <span>e.g. <code>image-format-select</code> ships <code>SVG</code> + <code>PNG</code> both as <code>.btn-primary</code>. Decide: one primary + one secondary (PNG has <code>defaultFocus</code>), or both neutral. Then sweep for every other 2+-primary footer.</span></li>
+        <li><b>Cancel / dismiss variant.</b> <span>Table §2 says dismiss = <code>.btn-default</code> (→ <code>.btn-ghost</code>), but real dialogs mix in <code>.btn-secondary</code> (e.g. <code>image-format-select</code>). Pick one canonical dismiss variant and apply everywhere.</span></li>
+        <li><b>Danger split.</b> <span>For each <code>.btn-danger</code> site: is it a destructive CTA (<code>.btn-primary.is-danger</code>) or an inline/row action (<code>.btn-ghost.is-danger</code>)?</span></li>
+        <li><b>Secondary budget.</b> <span>Confirm the rule "Secondary only when it stands above its neighbours" — otherwise supporting actions default to Ghost.</span></li>
+      </ul>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

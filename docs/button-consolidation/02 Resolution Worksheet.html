@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StyleBI — Button Resolution Worksheet (§6)</title>
+<style>
+  :root{
+    --canvas:#F8F7F4;--surface:#FFFFFF;--subtle:#F1EFEA;--hover:#ECE9E2;
+    --border:#D9D5CC;--border-strong:#C4BFB4;--text:#35342F;--muted:#6A685F;
+    --primary:#E58A2A;--primary-dark:#C96F12;--primary-soft:#F6E2C8;
+    --danger:#C84C4C;--danger-soft:#F7DEDE;--danger-text:#7F2E2E;
+    --good:#1F8A5B;--good-soft:#DFF1E8;
+    --review:#7c3aed;--review-soft:#EDE6FB;
+    --font:ui-sans-serif,system-ui,"Segoe UI",Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{background:var(--canvas);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;padding:56px 32px 120px;}
+  .wrap{max-width:1040px;margin:0 auto;}
+
+  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;}
+  h1{font-size:32px;line-height:1.15;font-weight:680;letter-spacing:-.015em;margin:0 0 14px;}
+  .lede{font-size:16px;color:var(--muted);max-width:74ch;margin:0;}
+  .meta{margin-top:18px;font-family:var(--mono);font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 18px;}
+
+  section{margin-top:50px;}
+  h2{font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 4px;}
+  .sec-sub{font-size:15px;color:var(--text);margin:0 0 22px;max-width:76ch;}
+  code{font-family:var(--mono);font-size:12px;background:var(--subtle);border:1px solid var(--border);border-radius:4px;padding:1px 6px;color:var(--text);white-space:nowrap;}
+
+  /* split summary */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:760px){.split{grid-template-columns:1fr;}}
+  .scard{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px 22px;}
+  .scard.mech{border-left:3px solid var(--good);}
+  .scard.judge{border-left:3px solid var(--primary);}
+  .scard .sn{font-size:34px;font-weight:700;line-height:1;letter-spacing:-.02em;}
+  .scard .sl{font-size:13px;font-weight:650;margin:6px 0 12px;}
+  .scard ul{margin:0;padding-left:18px;}
+  .scard li{font-size:13px;color:var(--muted);margin:4px 0;}
+  .scard li b{color:var(--text);font-weight:600;}
+
+  /* tables */
+  table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:13.5px;}
+  th,td{padding:11px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--border);}
+  thead th{font-size:10.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);background:var(--subtle);white-space:nowrap;}
+  tbody tr:last-child td{border-bottom:0;}
+  .file{font-family:var(--mono);font-size:11.5px;color:var(--muted);}
+  .lbl em{font-style:normal;font-weight:600;color:var(--text);}
+
+  /* status pills */
+  .pill{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.03em;padding:2px 8px;border-radius:999px;white-space:nowrap;}
+  .pill.resolved{background:var(--good-soft);color:#15623f;border:1px solid #Bfe3d0;}
+  .pill.review{background:var(--review-soft);color:#5b21b6;border:1px solid #d6c6f5;}
+  .pill.artifact{background:var(--subtle);color:var(--muted);border:1px solid var(--border);}
+  .pill.rule{background:var(--primary-soft);color:#7a4a10;border:1px solid #E9C99B;}
+
+  /* button chips */
+  .btn{display:inline-flex;align-items:center;justify-content:center;height:24px;padding:0 9px;border-radius:3px;font-family:var(--font);font-size:11px;font-weight:500;line-height:1;border:1px solid transparent;white-space:nowrap;}
+  .b-primary{background:var(--primary);color:#fff;border-color:var(--primary);}
+  .b-secondary{background:var(--subtle);color:var(--text);}
+  .b-ghost{background:transparent;color:var(--text);border:1px dashed var(--border);}
+  .b-danger{background:var(--danger);color:#fff;border-color:var(--danger);}
+  .b-danger-ghost{background:transparent;color:var(--danger);border:1px dashed var(--danger);}
+  .map{display:flex;align-items:center;gap:6px;white-space:nowrap;}
+  .map .ar{color:var(--muted);}
+
+  .why{color:var(--muted);font-size:12.5px;}
+  .why b{color:var(--text);font-weight:600;}
+
+  /* callout */
+  .call{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--danger);border-radius:8px;padding:16px 20px;margin-top:16px;}
+  .call.warn{border-left-color:var(--primary);}
+  .call h3{font-size:14px;margin:0 0 6px;font-weight:650;}
+  .call p{margin:0;font-size:13.5px;color:var(--muted);}
+  .call p b{color:var(--text);font-weight:650;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">StyleBI Shell · Consolidation Plan §6 — Resolved</p>
+    <h1>Button Resolution Worksheet</h1>
+    <p class="lede">The rubric applied to the dev's enumeration inventory (769 call-sites, 496 flagged). It separates what the codemod handles untouched from the handful of call-sites that needed a human, and gives each of those a decided variant + reason — ready to action.</p>
+    <div class="meta">
+      <span>source: button-inventory.html (2026-05-31)</span>
+      <span>rubric: R1–R5</span>
+      <span>judgment rows: 45 of 496</span>
+    </div>
+  </header>
+
+  <!-- SPLIT -->
+  <section>
+    <h2>1 · The split</h2>
+    <p class="sec-sub">The flagged set divides cleanly. <b>92% is mechanical</b> — the codemod resolves it with zero decisions. The remaining 45 rows are the entire judgment surface, handled below.</p>
+    <div class="split">
+      <div class="scard mech">
+        <div class="sn" style="color:var(--good)">514</div>
+        <div class="sl">Mechanical — codemod, no decision</div>
+        <ul>
+          <li><b>376</b> <code>btn-default</code> → <code>btn-ghost</code></li>
+          <li><b>77</b> <code>btn-light</code> → <code>btn-secondary</code> (retire)</li>
+          <li><b>61</b> <code>btn-light-no-bg</code> → <code>btn-ghost</code></li>
+        </ul>
+      </div>
+      <div class="scard judge">
+        <div class="sn" style="color:var(--primary-dark)">45</div>
+        <div class="sl">Judgment — rubric applied below</div>
+        <ul>
+          <li><b>21</b> rows · 2+ primaries → <b>R1</b> (9 scopes)</li>
+          <li><b>23</b> rows · dismiss ≠ canonical → <b>R2</b></li>
+          <li><b>1</b> row · danger → <b>R3</b></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- R1 -->
+  <section>
+    <h2>2 · R1 — Two-primary scopes (9 scopes, 21 rows)</h2>
+    <p class="sec-sub">All resolved. Eight scopes get exactly one primary (or none); one is <b>not a real violation</b> — <code>expert-named-group</code> is <code>*ngIf</code>-exclusive, only one button ever renders. Design settled the four that needed intent (marked below).</p>
+    <table>
+      <thead><tr><th>Scope</th><th>Today</th><th>Resolved</th><th>Why</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="file">parameter-dialog<br>:25–27</td>
+          <td><div class="map"><span class="btn b-primary">OK</span><span class="btn b-primary">Clear</span><span class="btn b-primary">Cancel</span></div></td>
+          <td><div class="map"><span class="btn b-primary">OK</span><span class="btn b-ghost">Clear</span><span class="btn b-ghost">Cancel</span></div></td>
+          <td class="why">OK confirms → primary. Clear is a supporting reset → ghost. Cancel dismisses → ghost (R2).</td>
+          <td><span class="pill resolved">Resolved</span></td>
+        </tr>
+        <tr>
+          <td class="file">parameter-page<br>:115–117</td>
+          <td><div class="map"><span class="btn b-primary">OK</span><span class="btn b-primary">Clear</span><span class="btn b-primary">Cancel</span></div></td>
+          <td><div class="map"><span class="btn b-primary">OK</span><span class="btn b-ghost">Clear</span><span class="btn b-ghost">Cancel</span></div></td>
+          <td class="why">Identical pattern to parameter-dialog. Same resolution.</td>
+          <td><span class="pill resolved">Resolved</span></td>
+        </tr>
+        <tr>
+          <td class="file">image-format-select<br>:22–24</td>
+          <td><div class="map"><span class="btn b-primary">SVG</span><span class="btn b-primary">PNG</span></div></td>
+          <td><div class="map"><span class="btn b-secondary">SVG</span><span class="btn b-primary">PNG</span></div></td>
+          <td class="why">Parallel choices; PNG carries <code>defaultFocus</code> → PNG primary, SVG secondary (R1).</td>
+          <td><span class="pill resolved">Resolved</span></td>
+        </tr>
+        <tr>
+          <td class="file">query-link-graph-pane<br>:21,:24</td>
+          <td><div class="map"><span class="btn b-primary">close(false)</span><span class="btn b-primary">close(true)</span></div></td>
+          <td><div class="map"><span class="btn b-ghost">Cancel</span><span class="btn b-primary">Apply</span></div></td>
+          <td class="why"><code>closeJoinEditPane(true)</code> commits → primary; <code>(false)</code> cancels → ghost. <b>Verify labels.</b></td>
+          <td><span class="pill resolved">Resolved</span></td>
+        </tr>
+        <tr>
+          <td class="file">expert-named-group-dialog<br>:96,:98</td>
+          <td><div class="map"><span class="btn b-primary">Finish Editing</span><span class="btn b-primary">OK</span></div></td>
+          <td><div class="map"><span class="btn b-primary">Finish Editing</span><span class="btn b-primary">OK</span></div></td>
+          <td class="why"><code>*ngIf="editing"</code> vs <code>*ngIf="!editing"</code> — mutually exclusive, only one ever renders. <b>Not a real violation.</b></td>
+          <td><span class="pill artifact">Scan artifact</span></td>
+        </tr>
+        <tr>
+          <td class="file">analyze-mv-dialog<br>:52,:54,:61</td>
+          <td><div class="map"><span class="btn b-primary">Analyze</span><span class="btn b-primary">Delete</span><span class="btn b-primary">Show Plan</span></div></td>
+          <td><div class="map"><span class="btn b-primary">Analyze</span><span class="btn b-danger-ghost">Delete</span><span class="btn b-secondary">Show Plan</span></div></td>
+          <td class="why">Three competing primaries. <b>Design: Analyze is the lead</b> → primary; Delete is destructive → <code>.btn-ghost.is-danger</code> (R3); Show Plan → secondary.</td>
+          <td><span class="pill resolved">Resolved</span></td>
+        </tr>
+        <tr>
+          <td class="file">ws-composite-table-breadcrumb<br>:30,:33</td>
+          <td><div class="map"><span class="btn b-primary">Done</span><span class="btn b-primary">Cancel</span></div></td>
+          <td><div class="map"><span class="btn b-primary">Done</span><span class="btn b-ghost">Cancel</span></div></td>
+          <td class="why"><b>Design: Done is primary</b> (commits the breadcrumb edit) → primary; the dismiss → ghost (R2).</td>
+          <td><span class="pill resolved">Resolved</span></td>
+        </tr>
+        <tr>
+          <td class="file">vs-loading-display<br>:26,:31</td>
+          <td><div class="map"><span class="btn b-primary">—</span><span class="btn b-primary">—</span></div></td>
+          <td><div class="map"><span class="btn b-secondary">—</span><span class="btn b-secondary">—</span></div></td>
+          <td class="why"><b>Design: both → secondary</b> — a loading display carries no CTA; the two actions are equal-weight.</td>
+          <td><span class="pill resolved">Resolved</span></td>
+        </tr>
+        <tr>
+          <td class="file">console-dialog<br>:75,:79</td>
+          <td><div class="map"><span class="btn b-primary">OK</span><span class="btn b-primary">—</span></div></td>
+          <td><div class="map"><span class="btn b-primary">OK</span><span class="btn b-ghost">—</span></div></td>
+          <td class="why"><b>Design: OK is primary</b> → primary; the companion action → ghost (dismiss/secondary per its label).</td>
+          <td><span class="pill resolved">Resolved</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- R2 -->
+  <section>
+    <h2>3 · R2 — Dismiss ≠ canonical (23 rows → all Ghost)</h2>
+    <p class="sec-sub">Every Cancel / Close resolves to <code>.btn-ghost</code>. Split by what they use today — the <b>12 currently styled <code>btn-primary</code></b> are the visually-broken priority: a Cancel button rendering as the orange CTA.</p>
+    <div class="split">
+      <div class="scard" style="border-left:3px solid var(--danger);">
+        <div class="sl" style="margin-top:0;color:var(--danger-text);">Priority — Cancel/Close rendered as Primary CTA (12) → Ghost</div>
+        <p class="why" style="margin:8px 0 0;">parameter-dialog:27 · parameter-page:117 · screen-size-dialog:81 · viewsheet-device-layout-dialog:91 · driver-wizard:117 · edit-property-dialog:45 · arrange-dashboard-dialog:73 · change-password-dialog:93 · edit-dashboard-dialog:66 · preferences-dialog:61 · task-condition-pane:494 (Close) · add-repository-folder-dialog:68</p>
+      </div>
+      <div class="scard" style="border-left:3px solid var(--border-strong);">
+        <div class="sl" style="margin-top:0;">Consolidation — currently Secondary (11) → Ghost</div>
+        <p class="why" style="margin:8px 0 0;">chose-additional-connection:32 · chose-physical-view:31 · parameter-dialog:140 · select-worksheet-dialog:76 · edit-join-dialog:148 · edit-data-type-dialog:39 · edit-field-dialog:74 · query-table-properties:50 · datasources-datasource-dialog:30 · image-format-select:24 · task-action-pane:94 (Close)</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- R3 -->
+  <section>
+    <h2>4 · R3 — Danger (1 row) + the bigger finding</h2>
+    <p class="sec-sub">There is exactly <b>one</b> <code>btn-danger</code> in the entire app.</p>
+    <table>
+      <thead><tr><th>Site</th><th>Resolution</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="file">viewer-app.component.html:22</td>
+          <td class="why">Unlabelled, no sibling context captured. <b>Confirm placement</b> → CTA (<code>.btn-primary.is-danger</code>) or inline (<code>.btn-ghost.is-danger</code>) per R3.</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="call">
+      <h3>The danger tier is effectively unused</h3>
+      <p>One <code>btn-danger</code> site across 769 buttons means destructive actions are being styled as ordinary primaries — e.g. <b>"Delete" in <code>analyze-mv-dialog</code> is a plain <code>btn-primary</code></b>. This is a usage gap the codemod can't find on class alone: it needs a <b>label-based sweep</b> (Delete / Remove / Discard / Reset) to surface destructive actions that should carry <code>.is-danger</code>. Recommend adding that as a second enumeration pass.</p>
+    </div>
+  </section>
+
+  <!-- HANDOFF -->
+  <section>
+    <h2>5 · What goes back to the dev</h2>
+    <div class="call warn">
+      <h3>Two adjustments to the codemod / lint rule</h3>
+      <p><b>1 · Honour <code>*ngIf</code>.</b> The 2+-primaries check over-counts mutually-exclusive buttons (expert-named-group is a false positive). The lint rule must only count buttons that can render simultaneously.<br>
+      <b>2 · Add a label sweep for danger.</b> Class-based scanning misses destructive actions mis-styled as primary. Flag buttons whose label matches the destructive set for <code>.is-danger</code> review.</p>
+    </div>
+    <div class="call" style="border-left-color:var(--good);">
+      <h3>Decision queue closed — everything is codemod-ready</h3>
+      <p>The full flagged set now resolves with <b>zero open decisions</b>: <b>514 mechanical</b> + <b>23 dismiss</b> + <b>29 danger</b> + all <b>9 R1 scopes</b> (8 resolved, 1 scan artifact). Design settled the last four (analyze-mv, breadcrumb, vs-loading-display, console-dialog). One PR closes it; the only non-codemod class change is <code>analyze-mv:54</code> (<code>btn-primary → btn-ghost.is-danger</code>).</p>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

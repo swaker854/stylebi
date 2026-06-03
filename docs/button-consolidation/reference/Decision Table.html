@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StyleBI — Button Variant Decision Table</title>
+<style>
+  /* ===== Resolved tokens (from _variables.scss / _bootstrap-override.scss) ===== */
+  :root{
+    --canvas:#F8F7F4;
+    --surface:#FFFFFF;
+    --subtle:#F1EFEA;
+    --hover:#ECE9E2;
+    --border:#D9D5CC;
+    --border-strong:#C4BFB4;
+    --text:#35342F;
+    --muted:#6A685F;
+    --primary:#E58A2A;
+    --primary-dark:#C96F12;
+    --primary-soft:#F6E2C8;
+    --danger:#C84C4C;
+    --danger-soft:#F7DEDE;
+    --danger-text:#7F2E2E;
+    --focus-ring:0 0 0 2px rgba(229,138,42,.28);
+
+    --font:ui-sans-serif,system-ui,"Segoe UI",Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{
+    background:var(--canvas);
+    color:var(--text);
+    font-family:var(--font);
+    font-size:15px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    padding:56px 32px 120px;
+  }
+  .wrap{max-width:1080px;margin:0 auto;}
+
+  /* ===== Page header ===== */
+  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;}
+  h1{font-size:34px;line-height:1.15;font-weight:680;letter-spacing:-.015em;margin:0 0 14px;}
+  .lede{font-size:16px;color:var(--muted);max-width:64ch;margin:0;}
+  .meta{margin-top:18px;font-family:var(--mono);font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 18px;}
+  .meta span{white-space:nowrap;}
+
+  section{margin-top:56px;}
+  h2{font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 4px;}
+  .sec-sub{font-size:15px;color:var(--text);margin:0 0 24px;max-width:72ch;}
+  .rule{height:1px;background:var(--border);border:0;margin:0 0 28px;}
+
+  /* ===== Buttons — faithful re-implementation of shipped selectors ===== */
+  .btn{
+    --b-bg:transparent;--b-fg:var(--text);--b-bd:transparent;
+    --b-bg-h:var(--hover);--b-fg-h:var(--text);--b-bd-h:transparent;
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    height:30px;padding:0 12px;border-radius:3px;
+    font-family:var(--font);font-size:12px;font-weight:500;line-height:1;
+    color:var(--b-fg);background:var(--b-bg);border:1px solid var(--b-bd);
+    cursor:pointer;white-space:nowrap;user-select:none;
+    transition:background-color 110ms ease,color 110ms ease,border-color 110ms ease,box-shadow 110ms ease;
+  }
+  .btn:hover:not(:disabled),.btn.is-hover{color:var(--b-fg-h);background:var(--b-bg-h);border-color:var(--b-bd-h);}
+  .btn:focus-visible,.btn.is-focus{box-shadow:var(--focus-ring);outline:none;}
+  .btn:disabled,.btn.is-disabled{opacity:.5;cursor:not-allowed;pointer-events:none;}
+
+  .btn-primary{--b-bg:var(--primary);--b-fg:#fff;--b-bd:var(--primary);--b-bg-h:var(--primary-dark);--b-fg-h:#fff;--b-bd-h:var(--primary-dark);}
+  .btn-secondary{--b-bg:transparent;--b-fg:var(--text);--b-bd:var(--border);--b-bg-h:var(--hover);--b-fg-h:var(--text);--b-bd-h:var(--border);}
+  /* default: token border is transparent, but the shipped selector paints --inet-default-border-color at rest */
+  .btn-default{--b-bg:transparent;--b-fg:var(--muted);--b-bd:var(--border);--b-bg-h:var(--hover);--b-fg-h:var(--text);--b-bd-h:transparent;}
+  .btn-light{--b-bg:var(--surface);--b-fg:var(--text);--b-bd:var(--border);--b-bg-h:var(--hover);--b-fg-h:var(--text);--b-bd-h:var(--border);}
+  .btn-lightnobg{--b-bg:transparent;--b-fg:var(--text);--b-bd:transparent;--b-bg-h:var(--hover);--b-fg-h:var(--text);--b-bd-h:var(--border);}
+  /* danger: rest border is NEUTRAL; hover flips bg to full red but text stays dark maroon */
+  .btn-danger{--b-bg:var(--danger-soft);--b-fg:var(--danger-text);--b-bd:var(--border);--b-bg-h:var(--danger);--b-fg-h:var(--danger-text);--b-bd-h:var(--danger);}
+  .btn-icon{width:30px;height:30px;padding:0;}
+  .btn-icon svg{width:16px;height:16px;display:block;}
+
+  /* ===== Specimen matrix ===== */
+  .matrix{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+  .matrix th,.matrix td{padding:16px 18px;text-align:left;vertical-align:middle;border-bottom:1px solid var(--border);}
+  .matrix thead th{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--subtle);}
+  .matrix tbody tr:last-child td{border-bottom:0;}
+  .matrix .variant{width:240px;}
+  .vname{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text);}
+  .vrole{font-size:12px;color:var(--muted);margin-top:3px;}
+  .state-cell{width:130px;}
+  .state-cell.ghosty{background:var(--subtle);}
+
+  /* ===== Decision table ===== */
+  .decision{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:14px;}
+  .decision th,.decision td{padding:14px 16px;text-align:left;vertical-align:top;border-bottom:1px solid var(--border);}
+  .decision thead th{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--subtle);}
+  .decision tbody tr:last-child td{border-bottom:0;}
+  .decision tbody tr:hover{background:var(--canvas);}
+  .ctx{font-weight:600;color:var(--text);width:24%;}
+  .ex{color:var(--muted);width:20%;}
+  .role-tag{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.04em;padding:2px 8px;border-radius:999px;border:1px solid var(--border);background:var(--subtle);color:var(--text);}
+  .role-tag.primary{background:var(--primary-soft);border-color:#E9C99B;color:#7a4a10;}
+  .role-tag.danger{background:var(--danger-soft);border-color:#E7B9B9;color:var(--danger-text);}
+  code{font-family:var(--mono);font-size:12.5px;background:var(--subtle);border:1px solid var(--border);border-radius:4px;padding:1px 6px;color:var(--text);white-space:nowrap;}
+  .note{color:var(--muted);font-size:13px;}
+
+  /* ===== In-context mocks ===== */
+  .mocks{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  @media(max-width:760px){.mocks{grid-template-columns:1fr;}}
+  .mock{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+  .mock-cap{font-size:12px;color:var(--muted);padding:10px 16px;border-bottom:1px solid var(--border);background:var(--subtle);font-weight:500;}
+  .mock-body{padding:18px;}
+  .dialog-title{font-size:15px;font-weight:600;margin:0 0 8px;}
+  .dialog-text{font-size:13px;color:var(--muted);margin:0 0 20px;}
+  .footer-row{display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border);padding-top:16px;}
+  .toolbar{display:flex;align-items:center;gap:4px;background:var(--subtle);border:1px solid var(--border);border-radius:6px;padding:5px 6px;}
+  .toolbar .sep{width:1px;height:18px;background:var(--border);margin:0 4px;}
+  .toolbar-spacer{flex:1;}
+  .listrow{display:flex;align-items:center;gap:12px;padding:10px 6px;border-bottom:1px solid var(--border);}
+  .listrow:last-child{border-bottom:0;}
+  .listrow .lr-name{font-size:13px;flex:1;}
+  .listrow .lr-actions{display:flex;gap:2px;opacity:.55;transition:opacity 120ms;}
+  .listrow:hover .lr-actions{opacity:1;}
+
+  /* ===== Flag callouts ===== */
+  .flags{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:760px){.flags{grid-template-columns:1fr;}}
+  .flag{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--danger);border-radius:6px;padding:16px 18px;}
+  .flag.warn{border-left-color:var(--primary);}
+  .flag h3{font-size:14px;margin:0 0 6px;font-weight:650;}
+  .flag p{font-size:13px;color:var(--muted);margin:0;}
+  .flag code{font-size:11.5px;}
+  .flag .fix{margin-top:10px;font-size:12.5px;color:var(--text);}
+  .flag .fix b{font-weight:650;}
+
+  .legend{display:flex;gap:22px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-bottom:18px;}
+  .legend b{color:var(--text);font-weight:600;}
+
+  /* ===== Recommended set ===== */
+  .btn-rec-secondary{--b-bg:var(--subtle);--b-fg:var(--text);--b-bd:transparent;--b-bg-h:var(--hover);--b-fg-h:var(--text);--b-bd-h:transparent;}
+  .btn-rec-ghost{--b-bg:transparent;--b-fg:var(--text);--b-bd:transparent;--b-bg-h:var(--hover);--b-fg-h:var(--text);--b-bd-h:transparent;}
+  .btn-rec-danger{--b-bg:var(--danger);--b-fg:#fff;--b-bd:var(--danger);--b-bg-h:#B04444;--b-fg-h:#fff;--b-bd-h:#B04444;}
+  .btn-rec-danger-ghost{--b-bg:transparent;--b-fg:var(--danger);--b-bd:transparent;--b-bg-h:var(--danger-soft);--b-fg-h:var(--danger-text);--b-bd-h:transparent;}
+
+  .tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  @media(max-width:760px){.tiers{grid-template-columns:1fr;}}
+  .tier{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;}
+  .tier .tlabel{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+  .tier .tname{font-size:17px;font-weight:650;margin:4px 0 2px;}
+  .tier .tdesc{font-size:13px;color:var(--muted);margin:0 0 18px;min-height:38px;}
+  .tier .tdemo{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .tier .tclass{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:16px;}
+  .modrow{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px;}
+  @media(max-width:760px){.modrow{grid-template-columns:1fr;}}
+
+  .ba{display:grid;grid-template-columns:1fr auto 1fr;gap:24px;align-items:stretch;margin-top:8px;}
+  @media(max-width:760px){.ba{grid-template-columns:1fr;}}
+  .ba-col{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;}
+  .ba-col.after{border-color:#E9C99B;background:#FFFDF8;}
+  .ba-h{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 14px;}
+  .ba-h.after{color:var(--primary-dark);}
+  .ba-item{display:flex;align-items:center;gap:10px;padding:7px 0;}
+  .ba-item .blab{font-family:var(--mono);font-size:11.5px;color:var(--muted);}
+  .ba-arrow{display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:22px;}
+  @media(max-width:760px){.ba-arrow{transform:rotate(90deg);padding:6px 0;}}
+  .ba-note{font-size:12px;color:var(--muted);margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">StyleBI Shell · Component Reference</p>
+    <h1>Button Variant Decision Table</h1>
+    <p class="lede">Every button class that ships in the shell, rendered with the real tokens from <code>_variables.scss</code>, mapped to the context where it should be used. Built to resolve the Default / Ghost / Light ambiguity and to surface where the docs and the code disagree.</p>
+    <div class="meta">
+      <span>primary #E58A2A</span>
+      <span>text #35342F</span>
+      <span>border #D9D5CC</span>
+      <span>danger #C84C4C</span>
+      <span>30px · 12px/500 · radius 3px</span>
+    </div>
+  </header>
+
+  <!-- ============ SPECIMENS ============ -->
+  <section>
+    <h2>1 · Specimen Matrix</h2>
+    <p class="sec-sub">Live states — hover any button in the <b>Rest</b> column. The Hover / Focus / Disabled columns are forced so the comparison survives a screenshot. Faithful to the shipped selectors, including the quirks flagged in §4.</p>
+    <div class="legend">
+      <span><b>Rest</b> default appearance</span>
+      <span><b>Hover</b> :hover / :active</span>
+      <span><b>Focus</b> keyboard focus ring</span>
+      <span><b>Disabled</b> opacity .5</span>
+      <span>Shaded cells sit on a <b>subtle</b> surface to reveal transparent fills</span>
+    </div>
+    <table class="matrix">
+      <thead>
+        <tr>
+          <th class="variant">Variant</th>
+          <th>Rest</th>
+          <th>Hover</th>
+          <th>Focus</th>
+          <th>Disabled</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="variant"><div class="vname">.btn-primary</div><div class="vrole">Primary — solid accent CTA</div></td>
+          <td><button class="btn btn-primary">Save</button></td>
+          <td><button class="btn btn-primary is-hover">Save</button></td>
+          <td><button class="btn btn-primary is-focus">Save</button></td>
+          <td><button class="btn btn-primary" disabled>Save</button></td>
+        </tr>
+        <tr>
+          <td class="variant"><div class="vname">.btn-secondary</div><div class="vrole">Secondary — neutral outline</div></td>
+          <td class="state-cell ghosty"><button class="btn btn-secondary">Import</button></td>
+          <td class="state-cell ghosty"><button class="btn btn-secondary is-hover">Import</button></td>
+          <td class="state-cell ghosty"><button class="btn btn-secondary is-focus">Import</button></td>
+          <td class="state-cell ghosty"><button class="btn btn-secondary" disabled>Import</button></td>
+        </tr>
+        <tr>
+          <td class="variant"><div class="vname">.btn-default</div><div class="vrole">Default — ghost-ish (see §4)</div></td>
+          <td class="state-cell ghosty"><button class="btn btn-default">Add field</button></td>
+          <td class="state-cell ghosty"><button class="btn btn-default is-hover">Add field</button></td>
+          <td class="state-cell ghosty"><button class="btn btn-default is-focus">Add field</button></td>
+          <td class="state-cell ghosty"><button class="btn btn-default" disabled>Add field</button></td>
+        </tr>
+        <tr>
+          <td class="variant"><div class="vname">.btn-light</div><div class="vrole">Light — raised neutral <em>(undocumented)</em></div></td>
+          <td class="state-cell ghosty"><button class="btn btn-light">Browse…</button></td>
+          <td class="state-cell ghosty"><button class="btn btn-light is-hover">Browse…</button></td>
+          <td class="state-cell ghosty"><button class="btn btn-light is-focus">Browse…</button></td>
+          <td class="state-cell ghosty"><button class="btn btn-light" disabled>Browse…</button></td>
+        </tr>
+        <tr>
+          <td class="variant"><div class="vname">.btn-light-no-bg</div><div class="vrole">Ghost — transparent till hover</div></td>
+          <td class="state-cell ghosty"><button class="btn btn-lightnobg">Reset</button></td>
+          <td class="state-cell ghosty"><button class="btn btn-lightnobg is-hover">Reset</button></td>
+          <td class="state-cell ghosty"><button class="btn btn-lightnobg is-focus">Reset</button></td>
+          <td class="state-cell ghosty"><button class="btn btn-lightnobg" disabled>Reset</button></td>
+        </tr>
+        <tr>
+          <td class="variant"><div class="vname">.btn-danger</div><div class="vrole">Danger — semantic destructive</div></td>
+          <td><button class="btn btn-danger">Delete</button></td>
+          <td><button class="btn btn-danger is-hover">Delete</button></td>
+          <td><button class="btn btn-danger is-focus">Delete</button></td>
+          <td><button class="btn btn-danger" disabled>Delete</button></td>
+        </tr>
+        <tr>
+          <td class="variant"><div class="vname">.btn-icon</div><div class="vrole">Icon — no visual contract (see §4)</div></td>
+          <td class="state-cell ghosty"><button class="btn btn-lightnobg btn-icon" aria-label="More"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="13" r="1.4"/></svg></button></td>
+          <td class="state-cell ghosty"><button class="btn btn-lightnobg btn-icon is-hover" aria-label="More"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="13" r="1.4"/></svg></button></td>
+          <td class="state-cell ghosty"><button class="btn btn-lightnobg btn-icon is-focus" aria-label="More"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="13" r="1.4"/></svg></button></td>
+          <td class="state-cell ghosty"><button class="btn btn-lightnobg btn-icon" disabled aria-label="More"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="13" r="1.4"/></svg></button></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============ DECISION TABLE ============ -->
+  <section>
+    <h2>2 · Context → Role → Class</h2>
+    <p class="sec-sub">The mapping the spec is missing. Pick the row that matches where the action lives; the class column is the answer.</p>
+    <table class="decision">
+      <thead>
+        <tr>
+          <th>Context / placement</th>
+          <th>Example</th>
+          <th>Role</th>
+          <th>Class</th>
+          <th>Rule</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="ctx">Dialog footer — confirm</td>
+          <td class="ex">Save · Create · OK</td>
+          <td><span class="role-tag primary">Primary</span></td>
+          <td><code>.btn-primary</code></td>
+          <td class="note">Exactly one per dialog.</td>
+        </tr>
+        <tr>
+          <td class="ctx">Dialog footer — dismiss</td>
+          <td class="ex">Cancel</td>
+          <td><span class="role-tag">Default</span></td>
+          <td><code>.btn-default</code></td>
+          <td class="note">Never a second primary; pairs to the right of confirm.</td>
+        </tr>
+        <tr>
+          <td class="ctx">Destructive confirm dialog</td>
+          <td class="ex">Delete · Remove</td>
+          <td><span class="role-tag danger">Danger</span></td>
+          <td><code>.btn-danger</code></td>
+          <td class="note">Replaces primary as the affirmative action.</td>
+        </tr>
+        <tr>
+          <td class="ctx">Page header — main action</td>
+          <td class="ex">New Worksheet</td>
+          <td><span class="role-tag primary">Primary</span></td>
+          <td><code>.btn-primary</code></td>
+          <td class="note">One per visible page scope.</td>
+        </tr>
+        <tr>
+          <td class="ctx">Page header — supporting</td>
+          <td class="ex">Import · Refresh</td>
+          <td><span class="role-tag">Secondary</span></td>
+          <td><code>.btn-secondary</code></td>
+          <td class="note">Sparingly — only when it stands above its neighbours.</td>
+        </tr>
+        <tr>
+          <td class="ctx">Toolbar — text action</td>
+          <td class="ex">Add · Connect</td>
+          <td><span class="role-tag">Default</span></td>
+          <td><code>.btn-default</code></td>
+          <td class="note">Multiple allowed; the routine workhorse.</td>
+        </tr>
+        <tr>
+          <td class="ctx">Toolbar — icon action</td>
+          <td class="ex">Sort · Filter · Zoom</td>
+          <td><span class="role-tag">Ghost / icon</span></td>
+          <td><code>.btn-icon.btn-light-no-bg</code></td>
+          <td class="note">Borderless until hover/focus.</td>
+        </tr>
+        <tr>
+          <td class="ctx">Inline row action</td>
+          <td class="ex">Edit · More (⋮)</td>
+          <td><span class="role-tag">Ghost / icon</span></td>
+          <td><code>.btn-light-no-bg</code></td>
+          <td class="note">Reveal on row hover; minimal chrome.</td>
+        </tr>
+        <tr>
+          <td class="ctx">Affordance on a tinted/busy surface</td>
+          <td class="ex">Field picker · Browse…</td>
+          <td><span class="role-tag">Light</span></td>
+          <td><code>.btn-light</code></td>
+          <td class="note">Use only where a white fill is needed to read against a subtle/tinted background. <b>Decide vs Secondary.</b></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============ IN CONTEXT ============ -->
+  <section>
+    <h2>3 · In Context</h2>
+    <p class="sec-sub">The same classes, used as the table prescribes.</p>
+    <div class="mocks">
+      <div class="mock">
+        <div class="mock-cap">Standard dialog footer</div>
+        <div class="mock-body">
+          <p class="dialog-title">Save worksheet</p>
+          <p class="dialog-text">Your changes will be applied to the shared data model.</p>
+          <div class="footer-row">
+            <button class="btn btn-default">Cancel</button>
+            <button class="btn btn-primary">Save</button>
+          </div>
+        </div>
+      </div>
+      <div class="mock">
+        <div class="mock-cap">Destructive dialog footer</div>
+        <div class="mock-body">
+          <p class="dialog-title">Delete data source?</p>
+          <p class="dialog-text">This removes the connection for everyone. It can't be undone.</p>
+          <div class="footer-row">
+            <button class="btn btn-default">Cancel</button>
+            <button class="btn btn-danger">Delete</button>
+          </div>
+        </div>
+      </div>
+      <div class="mock">
+        <div class="mock-cap">Editor toolbar</div>
+        <div class="mock-body">
+          <div class="toolbar">
+            <button class="btn btn-default">Add</button>
+            <button class="btn btn-default">Connect</button>
+            <span class="sep"></span>
+            <button class="btn btn-lightnobg btn-icon" aria-label="Sort"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M4 4v8M4 4 2 6M4 4l2 2M12 12V4M12 12l-2-2M12 12l2-2"/></svg></button>
+            <button class="btn btn-lightnobg btn-icon" aria-label="Filter"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h12l-4.5 5.5V13L6.5 11V8.5L2 3z"/></svg></button>
+            <span class="toolbar-spacer"></span>
+            <button class="btn btn-secondary">Refresh</button>
+          </div>
+        </div>
+      </div>
+      <div class="mock">
+        <div class="mock-cap">List with row actions</div>
+        <div class="mock-body" style="padding:6px 12px;">
+          <div class="listrow"><span class="lr-name">sales_2025.wsheet</span><span class="lr-actions">
+            <button class="btn btn-lightnobg btn-icon" aria-label="Edit"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 2.5 13.5 5 6 12.5 3 13l.5-3L11 2.5z"/></svg></button>
+            <button class="btn btn-lightnobg btn-icon" aria-label="More"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="13" r="1.4"/></svg></button>
+          </span></div>
+          <div class="listrow"><span class="lr-name">inventory.wsheet</span><span class="lr-actions">
+            <button class="btn btn-lightnobg btn-icon" aria-label="Edit"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 2.5 13.5 5 6 12.5 3 13l.5-3L11 2.5z"/></svg></button>
+            <button class="btn btn-lightnobg btn-icon" aria-label="More"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="13" r="1.4"/></svg></button>
+          </span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FLAGS ============ -->
+  <section>
+    <h2>4 · Flags — docs vs. shipped code</h2>
+    <p class="sec-sub">Where the table can't be filled in cleanly because the spec and the SCSS disagree. Resolve these before this drives implementation.</p>
+    <div class="flags">
+      <div class="flag warn">
+        <h3>1 · <code>.btn-light</code> is undocumented</h3>
+        <p>It has its own token family (<code>--inet-button-light-*</code>) and ships in production, but no design spec names it. It overlaps heavily with Secondary (both neutral, bordered).</p>
+        <p class="fix"><b>Fix:</b> name it as a 4th role (“raised neutral”) with a clear job, or fold it into Secondary and retire the class.</p>
+      </div>
+      <div class="flag">
+        <h3>2 · <code>.btn-default</code> isn't a ghost at rest</h3>
+        <p>The token <code>--inet-button-default-border-color</code> is <code>transparent</code> and the docs say “ghost at rest, no persistent outline.” But the selector hardcodes <code>border:1px solid var(--inet-default-border-color)</code> — a visible border.</p>
+        <p class="fix"><b>Fix:</b> decide ghost vs. light-outline and make the selector honour its own token.</p>
+      </div>
+      <div class="flag">
+        <h3>3 · Danger is under-tokenized</h3>
+        <p>There is no <code>--inet-button-danger-*</code> family. The selector pulls semantic tokens directly: a <em>neutral</em> rest border, and a hover that flips to full red while text stays dark maroon — a low-contrast hover.</p>
+        <p class="fix"><b>Fix:</b> add a danger button token family; raise hover contrast (white text on red, or red text on soft).</p>
+      </div>
+      <div class="flag warn">
+        <h3>4 · Icon buttons have no visual contract</h3>
+        <p><code>.btn-icon</code> exists but only sets <code>flex: 0 1 4em</code> inside input-groups — no size, padding, or hover spec. Above it borrows <code>.btn-light-no-bg</code> to look right.</p>
+        <p class="fix"><b>Fix:</b> give <code>.btn-icon</code> a real square spec (size, centering, borderless-till-hover) and document it.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RECOMMENDED ============ -->
+  <section>
+    <h2>5 · Recommended Consolidation</h2>
+    <p class="sec-sub">The Figma-pattern target: <b>3 emphasis tiers + 2 modifiers</b>. Neutral buttons step down by <b>fill weight</b> (accent → subtle gray → transparent), not by border. Hover any button — these are live.</p>
+
+    <div class="tiers">
+      <div class="tier">
+        <div class="tlabel">Tier 1</div>
+        <div class="tname">Primary</div>
+        <p class="tdesc">Filled accent. The single most important action in scope.</p>
+        <div class="tdemo">
+          <button class="btn btn-primary">Save</button>
+          <button class="btn btn-primary is-hover">Save</button>
+        </div>
+        <div class="tclass">.btn-primary — unchanged</div>
+      </div>
+      <div class="tier">
+        <div class="tlabel">Tier 2</div>
+        <div class="tname">Secondary</div>
+        <p class="tdesc">Neutral <b>fill</b>, no border. Supporting actions that still need weight.</p>
+        <div class="tdemo">
+          <button class="btn btn-rec-secondary">Import</button>
+          <button class="btn btn-rec-secondary is-hover">Import</button>
+        </div>
+        <div class="tclass">.btn-secondary — merges old secondary + light</div>
+      </div>
+      <div class="tier">
+        <div class="tlabel">Tier 3</div>
+        <div class="tname">Ghost</div>
+        <p class="tdesc">Transparent, fills on hover only. The dominant style by count.</p>
+        <div class="tdemo">
+          <button class="btn btn-rec-ghost">Add field</button>
+          <button class="btn btn-rec-ghost is-hover">Add field</button>
+        </div>
+        <div class="tclass">.btn-ghost — merges old default + light-no-bg</div>
+      </div>
+    </div>
+
+    <div class="modrow">
+      <div class="tier">
+        <div class="tlabel">Modifier</div>
+        <div class="tname">Icon</div>
+        <p class="tdesc">A square Ghost. Same hover-fill, 1:1 ratio, borderless at rest.</p>
+        <div class="tdemo">
+          <button class="btn btn-rec-ghost btn-icon" aria-label="Sort"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M4 4v8M4 4 2 6M4 4l2 2M12 12V4M12 12l-2-2M12 12l2-2"/></svg></button>
+          <button class="btn btn-rec-ghost btn-icon is-hover" aria-label="More"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="13" r="1.4"/></svg></button>
+        </div>
+        <div class="tclass">.btn-icon — Ghost + square spec</div>
+      </div>
+      <div class="tier">
+        <div class="tlabel">Modifier</div>
+        <div class="tname">Danger · CTA</div>
+        <p class="tdesc">Filled red + white text. Replaces Primary in a destructive confirm.</p>
+        <div class="tdemo">
+          <button class="btn btn-rec-danger">Delete</button>
+          <button class="btn btn-rec-danger is-hover">Delete</button>
+        </div>
+        <div class="tclass">.btn-primary.is-danger</div>
+      </div>
+      <div class="tier">
+        <div class="tlabel">Modifier</div>
+        <div class="tname">Danger · inline</div>
+        <p class="tdesc">Red Ghost for inline/row destructive actions. Soft-red on hover.</p>
+        <div class="tdemo">
+          <button class="btn btn-rec-danger-ghost">Remove</button>
+          <button class="btn btn-rec-danger-ghost is-hover">Remove</button>
+        </div>
+        <div class="tclass">.btn-ghost.is-danger</div>
+      </div>
+    </div>
+
+    <h2 style="margin-top:44px;">The neutral decision, before → after</h2>
+    <p class="sec-sub">Three bordered neutrals that read at the same weight, collapsed into two clearly-separated tiers.</p>
+    <div class="ba">
+      <div class="ba-col">
+        <p class="ba-h">Today · 3 bordered neutrals</p>
+        <div class="ba-item"><button class="btn btn-secondary">Import</button><span class="blab">.btn-secondary</span></div>
+        <div class="ba-item"><button class="btn btn-light">Browse…</button><span class="blab">.btn-light</span></div>
+        <div class="ba-item"><button class="btn btn-default">Add field</button><span class="blab">.btn-default</span></div>
+        <p class="ba-note">All three carry a border and sit at nearly the same visual weight — the hierarchy reads flat.</p>
+      </div>
+      <div class="ba-arrow">→</div>
+      <div class="ba-col after">
+        <p class="ba-h after">Recommended · 2 tiers by fill</p>
+        <div class="ba-item"><button class="btn btn-rec-secondary">Import</button><span class="blab">.btn-secondary · subtle fill</span></div>
+        <div class="ba-item"><button class="btn btn-rec-ghost">Add field</button><span class="blab">.btn-ghost · transparent</span></div>
+        <p class="ba-note">Filled gray vs. transparent gives an unmistakable step down. <code>.btn-light</code> retires; <code>.btn-default</code> becomes a true ghost.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

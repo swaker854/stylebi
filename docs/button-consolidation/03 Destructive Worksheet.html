@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StyleBI — Destructive Action Worksheet (R3)</title>
+<style>
+  :root{
+    --canvas:#F8F7F4;--surface:#FFFFFF;--subtle:#F1EFEA;--hover:#ECE9E2;
+    --border:#D9D5CC;--border-strong:#C4BFB4;--text:#35342F;--muted:#6A685F;
+    --primary:#E58A2A;--primary-dark:#C96F12;--primary-soft:#F6E2C8;
+    --danger:#C84C4C;--danger-soft:#F7DEDE;--danger-text:#7F2E2E;
+    --good:#1F8A5B;--good-soft:#DFF1E8;
+    --font:ui-sans-serif,system-ui,"Segoe UI",Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{background:var(--canvas);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;padding:56px 32px 120px;}
+  .wrap{max-width:1040px;margin:0 auto;}
+
+  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;}
+  h1{font-size:32px;line-height:1.15;font-weight:680;letter-spacing:-.015em;margin:0 0 14px;}
+  .lede{font-size:16px;color:var(--muted);max-width:74ch;margin:0;}
+  .meta{margin-top:18px;font-family:var(--mono);font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 18px;}
+
+  section{margin-top:50px;}
+  h2{font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 4px;}
+  .sec-sub{font-size:15px;color:var(--text);margin:0 0 22px;max-width:78ch;}
+  code{font-family:var(--mono);font-size:12px;background:var(--subtle);border:1px solid var(--border);border-radius:4px;padding:1px 6px;color:var(--text);white-space:nowrap;}
+
+  /* hero finding */
+  .hero{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:26px 30px;}
+  @media(max-width:680px){.hero{grid-template-columns:1fr;}}
+  .hero .nums{display:flex;align-items:baseline;gap:8px;}
+  .hero .n1{font-size:54px;font-weight:700;line-height:1;letter-spacing:-.03em;color:var(--danger);}
+  .hero .vs{font-size:18px;color:var(--muted);}
+  .hero .n2{font-size:34px;font-weight:700;line-height:1;color:var(--muted);}
+  .hero .cap{font-size:12.5px;color:var(--muted);margin-top:8px;max-width:24ch;}
+  .hero .txt p{margin:0;font-size:15px;color:var(--text);}
+  .hero .txt b{font-weight:680;}
+
+  /* the cut */
+  .cut{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:680px){.cut{grid-template-columns:1fr;}}
+  .ccard{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px 22px;}
+  .ccard.no{border-top:3px solid var(--muted);}
+  .ccard.yes{border-top:3px solid var(--danger);}
+  .ccard .ct{display:flex;align-items:baseline;gap:10px;margin-bottom:14px;}
+  .ccard .cn{font-size:30px;font-weight:700;line-height:1;}
+  .ccard .ch{font-size:14px;font-weight:650;}
+  .ccard .cd{font-size:13px;color:var(--muted);margin-bottom:14px;}
+  .lchips{display:flex;flex-wrap:wrap;gap:6px;}
+  .lchip{font-size:11.5px;font-weight:500;padding:3px 9px;border-radius:999px;border:1px solid var(--border);background:var(--subtle);color:var(--text);}
+  .lchip b{font-weight:700;color:var(--muted);margin-left:4px;}
+
+  /* rule card */
+  .rule{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+  .rule-head{padding:14px 20px;border-bottom:1px solid var(--border);background:var(--subtle);display:flex;align-items:baseline;gap:12px;}
+  .rule-head .rid{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--muted);}
+  .rule-head .rname{font-size:16px;font-weight:650;}
+  .rule-body{padding:6px 20px 4px;}
+  .step{display:grid;grid-template-columns:24px 1fr auto;gap:12px;align-items:center;padding:13px 0;border-bottom:1px solid var(--border);}
+  .step:last-child{border-bottom:0;}
+  .step .si{font-family:var(--mono);font-size:12px;color:var(--muted);}
+  .step .sq{font-size:13.5px;}
+  .step .sq b{font-weight:650;}
+  .step .sa{white-space:nowrap;}
+
+  /* buttons */
+  .btn{display:inline-flex;align-items:center;justify-content:center;height:24px;padding:0 9px;border-radius:3px;font-family:var(--font);font-size:11px;font-weight:500;line-height:1;border:1px solid transparent;white-space:nowrap;}
+  .b-primary{background:var(--primary);color:#fff;border-color:var(--primary);}
+  .b-secondary{background:var(--subtle);color:var(--text);}
+  .b-ghost{background:transparent;color:var(--text);border:1px dashed var(--border);}
+  .b-danger{background:var(--danger);color:#fff;border-color:var(--danger);}
+  .b-danger-ghost{background:transparent;color:var(--danger);border:1px dashed var(--danger);}
+
+  /* tables */
+  table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:13px;}
+  th,td{padding:10px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--border);}
+  thead th{font-size:10.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);background:var(--subtle);white-space:nowrap;}
+  tbody tr:last-child td{border-bottom:0;}
+  .file{font-family:var(--mono);font-size:11px;color:var(--muted);}
+  .cnt{font-weight:650;color:var(--text);}
+
+  .pill{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.03em;padding:2px 8px;border-radius:999px;white-space:nowrap;}
+  .pill.resolved{background:var(--good-soft);color:#15623f;border:1px solid #Bfe3d0;}
+  .pill.review{background:#EDE6FB;color:#5b21b6;border:1px solid #d6c6f5;}
+
+  .call{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--primary);border-radius:8px;padding:16px 20px;margin-top:16px;}
+  .call h3{font-size:14px;margin:0 0 6px;font-weight:650;}
+  .call p{margin:0;font-size:13.5px;color:var(--muted);}
+  .call p b{color:var(--text);font-weight:650;}
+  .filelist{font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.7;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">StyleBI Shell · R3 — Destructive Actions</p>
+    <h1>Destructive Action Worksheet</h1>
+    <p class="lede">The dev's label sweep found 59 destructive-labelled buttons against 1 styled as danger. But a destructive <em>label</em> isn't a destructive <em>action</em> — so the rubric adds a second cut before anything turns red. The real problem here isn't too much alarm; it's that destructive actions are invisible.</p>
+    <div class="meta">
+      <span>source: button-inventory (label sweep)</span>
+      <span>59 destructive labels · 1 styled danger</span>
+      <span>rule: R3 refined</span>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section>
+    <h2>1 · The finding</h2>
+    <div class="hero">
+      <div>
+        <div class="nums"><span class="n1">59</span><span class="vs">vs</span><span class="n2">1</span></div>
+        <div class="cap">destructive-labelled buttons vs. buttons actually styled as danger</div>
+      </div>
+      <div class="txt">
+        <p>Destructive actions today carry the <b>same visual weight as benign ones</b> — "Delete" renders identically to "Add field" (both <code>btn-default</code> → ghost). The risk isn't scary red everywhere; it's the opposite: <b>users can't tell a destructive action apart from a routine one.</b> Danger styling restores a distinction that's currently missing.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE CUT -->
+  <section>
+    <h2>2 · The cut — label ≠ action</h2>
+    <p class="sec-sub">Half the "destructive" labels are reversible resets. Applying danger to those would cry wolf. Split first:</p>
+    <div class="cut">
+      <div class="ccard no">
+        <div class="ct"><span class="cn" style="color:var(--muted)">30</span><span class="ch">Reversible reset → NOT danger</span></div>
+        <div class="cd">Clears a field, filter, or selection. Undoable, no data lost. These are supporting actions → <code>.btn-ghost</code> (the default). No red.</div>
+        <div class="lchips">
+          <span class="lchip">Clear<b>21</b></span><span class="lchip">Clear All<b>4</b></span><span class="lchip">Reset<b>3</b></span><span class="lchip">Clear Column Info<b>1</b></span><span class="lchip">Clear Custom Order<b>1</b></span>
+        </div>
+      </div>
+      <div class="ccard yes">
+        <div class="ct"><span class="cn" style="color:var(--danger)">29</span><span class="ch">Destroys persistent data → danger</span></div>
+        <div class="cd">Removes an entity, row, data source, or saved object. This is what <code>.is-danger</code> is for.</div>
+        <div class="lchips">
+          <span class="lchip">Delete<b>19</b></span><span class="lchip">Remove<b>9</b></span><span class="lchip">Remove All<b>1</b></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REFINED RULE -->
+  <section>
+    <h2>3 · R3, refined</h2>
+    <p class="sec-sub">A destructive label is a <b>candidate</b>, not a verdict. Two cuts, in order:</p>
+    <div class="rule">
+      <div class="rule-head"><span class="rid">R3</span><span class="rname">Destructive label → variant</span></div>
+      <div class="rule-body">
+        <div class="step"><span class="si">1</span><span class="sq"><b>Reversible?</b> Clears/resets a field, filter, or selection — nothing persistent lost.</span><span class="sa"><span class="btn b-ghost">Clear</span></span></div>
+        <div class="step"><span class="si">2</span><span class="sq"><b>Destroys data, and is the affirmative action of a confirm dialog?</b></span><span class="sa"><span class="btn b-danger">Delete</span></span></div>
+        <div class="step"><span class="si">3</span><span class="sq"><b>Destroys data, inline / in a row / action bar</b> among other actions?</span><span class="sa"><span class="btn b-danger-ghost">Remove</span></span></div>
+      </div>
+    </div>
+    <p class="sec-sub" style="margin-top:12px;font-size:13.5px;color:var(--muted);">Lint note: <b>never auto-apply <code>.is-danger</code> from a label.</b> The sweep flags candidates; a reviewer applies cut #1. Otherwise 30 harmless resets turn red.</p>
+    <div class="call" style="border-left-color:var(--good);">
+      <h3>Step 2 fires nowhere in this codebase</h3>
+      <p>Dev inspection confirmed it: across all 29 destructive sites, <b>not one is the affirmative CTA of a confirm dialog</b>. Every destructive action is a secondary or inline action sitting beside an OK/Cancel or among other row actions. So <code>.btn-primary.is-danger</code> is unused here — the rule keeps it for completeness, but the codebase only needs <code>.btn-ghost.is-danger</code>.</p>
+    </div>
+  </section>
+
+  <!-- RESOLUTION -->
+  <section>
+    <h2>4 · Resolution — all 29 destructive</h2>
+    <p class="sec-sub">Dev inspection settled the two former footer cases — <b>neither is the dialog's affirmative action</b>. <code>edit-join-dialog:143</code> (Remove) sits beside its own OK + Cancel; <code>task-action-pane:87</code> (Delete) isn't a modal footer at all but a custom action bar among Add/Copy/Edit/Save. Both are destructive secondaries. The "Confirm" bucket is empty.</p>
+    <table>
+      <thead><tr><th>Group</th><th>Count</th><th>Resolves to</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>All Delete / Remove / Remove All — inline, action-bar, row, <em>and</em> the 2 footer cases</td>
+          <td class="cnt">29</td>
+          <td><span class="btn b-danger-ghost">Remove</span> &nbsp;<code>.btn-ghost.is-danger</code></td>
+          <td><span class="pill resolved">Resolved — one pass</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="call">
+      <h3>The one class-change beyond the codemod: <code>analyze-mv-dialog:54</code></h3>
+      <p>Of all 29, exactly one destructive action is currently a full <code>btn-primary</code> — <b>"Delete" in analyze-mv</b>, one of three competing primaries (see Resolution Worksheet §2). It needs an explicit <code>btn-primary → btn-ghost</code> swap plus <code>.is-danger</code>; the other 28 already become ghost via the default/light codemod and just gain <code>.is-danger</code>. A destructive action should never wear the primary CTA.</p>
+    </div>
+  </section>
+
+  <!-- FULL LIST -->
+  <section>
+    <h2>5 · All 29 sites → <code>.btn-ghost.is-danger</code></h2>
+    <p class="sec-sub">Full list for the codemod's danger pass — a single sweep, no manual review. All currently <code>btn-default</code> unless noted.</p>
+    <div class="call" style="border-left-color:var(--danger);">
+      <p class="filelist">
+        vpm-hidden-columns:64, :71 (Remove All), :122 <span style="color:var(--danger-text)">[light-no-bg]</span> ·
+        filters-pane:46 <span style="color:var(--danger-text)">[light-no-bg]</span> ·
+        localization-pane:36 <span style="color:var(--danger-text)">[light-no-bg]</span> ·
+        named-group-pane:27 ·
+        datasources-database:422, :473 ·
+        driver-wizard:43 ·
+        one-of-condition-editor:59 ·
+        task-condition-pane:558 ·
+        variable-list-editor:45 ·
+        geo-mapping-dialog:96 ·
+        expert-named-group-dialog:37 ·
+        selection-general-pane:199 ·
+        selection-tree-columns-pane:44 ·
+        grouping-dialog:130 ·
+        numeric-range-option-dialog:61 ·
+        chart-target-lines-pane:35 ·
+        datasources-datasource:84 ·
+        analyze-mv-dialog:54 <span style="color:var(--danger-text)">[primary!]</span> ·
+        one-of-vpm-condition-editor:46 ·
+        hyperlink-dialog:221 ·
+        condition-pane:75 ·
+        highlight-pane:34 ·
+        image-preview-pane:46 ·
+        tabular-list-editor:55 ·
+        edit-join-dialog:143 (Remove) <span style="color:var(--danger-text)">[secondary]</span> ·
+        task-action-pane:87 (Delete) <span style="color:var(--danger-text)">[secondary]</span>
+      </p>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

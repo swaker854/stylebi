@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StyleBI — Button Variant Rubric</title>
+<style>
+  :root{
+    --canvas:#F8F7F4;--surface:#FFFFFF;--subtle:#F1EFEA;--hover:#ECE9E2;
+    --border:#D9D5CC;--border-strong:#C4BFB4;--text:#35342F;--muted:#6A685F;
+    --primary:#E58A2A;--primary-dark:#C96F12;--primary-soft:#F6E2C8;
+    --danger:#C84C4C;--danger-soft:#F7DEDE;--danger-text:#7F2E2E;
+    --good:#1F8A5B;--good-soft:#DFF1E8;
+    --font:ui-sans-serif,system-ui,"Segoe UI",Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{background:var(--canvas);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;padding:56px 32px 120px;}
+  .wrap{max-width:980px;margin:0 auto;}
+
+  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;}
+  h1{font-size:32px;line-height:1.15;font-weight:680;letter-spacing:-.015em;margin:0 0 14px;}
+  .lede{font-size:16px;color:var(--muted);max-width:72ch;margin:0;}
+  .meta{margin-top:18px;font-family:var(--mono);font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 18px;}
+
+  section{margin-top:48px;}
+  h2{font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 16px;}
+  code{font-family:var(--mono);font-size:12.5px;background:var(--subtle);border:1px solid var(--border);border-radius:4px;padding:1px 6px;color:var(--text);white-space:nowrap;}
+
+  /* buttons */
+  .btn{--b-bg:transparent;--b-fg:var(--text);--b-bd:transparent;--b-bg-h:var(--hover);--b-fg-h:var(--text);--b-bd-h:transparent;
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;height:30px;padding:0 12px;border-radius:3px;
+    font-family:var(--font);font-size:12px;font-weight:500;line-height:1;color:var(--b-fg);background:var(--b-bg);border:1px solid var(--b-bd);cursor:pointer;white-space:nowrap;}
+  .btn:hover{color:var(--b-fg-h);background:var(--b-bg-h);border-color:var(--b-bd-h);}
+  .btn-primary{--b-bg:var(--primary);--b-fg:#fff;--b-bd:var(--primary);--b-bg-h:var(--primary-dark);--b-bd-h:var(--primary-dark);--b-fg-h:#fff;}
+  .btn-secondary{--b-bg:var(--subtle);--b-fg:var(--text);--b-bd:transparent;--b-bg-h:var(--hover);--b-bd-h:transparent;}
+  .btn-ghost{--b-bg:transparent;--b-fg:var(--text);--b-bd:transparent;--b-bg-h:var(--hover);--b-bd-h:transparent;}
+  .btn-danger{--b-bg:var(--danger);--b-fg:#fff;--b-bd:var(--danger);--b-bg-h:#B04444;--b-bd-h:#B04444;--b-fg-h:#fff;}
+  .btn-danger-ghost{--b-bg:transparent;--b-fg:var(--danger);--b-bd:transparent;--b-bg-h:var(--danger-soft);--b-fg-h:var(--danger-text);--b-bd-h:transparent;}
+
+  /* scope law banner */
+  .law{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--primary);border-radius:8px;padding:20px 24px;}
+  .law .big{font-size:19px;font-weight:680;letter-spacing:-.01em;margin:0 0 8px;}
+  .law p{margin:0;font-size:14px;color:var(--muted);max-width:74ch;}
+  .law .scope{margin-top:14px;padding-top:14px;border-top:1px dashed var(--border);font-size:13.5px;color:var(--text);}
+  .law .scope b{font-weight:650;}
+
+  /* rule cards */
+  .rule{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:18px;}
+  .rule-head{display:flex;align-items:baseline;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border);background:var(--subtle);}
+  .rule-head .rid{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--muted);}
+  .rule-head .rname{font-size:16px;font-weight:650;}
+  .rule-head .rdefault{margin-left:auto;font-size:11px;font-weight:600;letter-spacing:.04em;padding:3px 9px;border-radius:999px;background:var(--good-soft);color:#15623f;border:1px solid #Bfe3d0;}
+  .rule-body{padding:18px 20px;}
+  .rule-line{font-size:15px;margin:0 0 16px;}
+  .rule-line b{font-weight:650;}
+
+  .flow{display:flex;flex-direction:column;gap:8px;margin:0 0 16px;}
+  .cond{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;padding:11px 14px;border:1px solid var(--border);border-radius:6px;background:var(--canvas);}
+  .cond .q{font-size:13.5px;}
+  .cond .q b{font-weight:650;color:var(--text);}
+  .cond .ans{display:flex;align-items:center;gap:8px;white-space:nowrap;}
+  .cond .ans .cls{font-family:var(--mono);font-size:11.5px;color:var(--muted);}
+
+  .tiebreak{font-size:13px;color:var(--muted);padding:11px 14px;border:1px dashed var(--border);border-radius:6px;background:var(--subtle);}
+  .tiebreak b{color:var(--text);font-weight:650;}
+  .lint{margin-top:14px;font-family:var(--mono);font-size:11.5px;color:var(--muted);display:flex;gap:8px;align-items:flex-start;}
+  .lint .lbl{color:var(--primary-dark);font-weight:600;flex-shrink:0;}
+
+  /* worked example */
+  .ex{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px 22px;}
+  .ex .exh{font-size:13px;font-weight:650;margin:0 0 4px;}
+  .ex .exf{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin:0 0 16px;}
+  .ex-grid{display:grid;grid-template-columns:1fr 40px 1fr;gap:18px;align-items:center;}
+  @media(max-width:720px){.ex-grid{grid-template-columns:1fr;}}
+  .ex-col{border:1px solid var(--border);border-radius:6px;padding:14px;}
+  .ex-col.after{border-color:#E9C99B;background:#FFFDF8;}
+  .ex-col .ch{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 12px;}
+  .ex-col .ch.after{color:var(--primary-dark);}
+  .ex-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .ex-arrow{display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:22px;}
+  @media(max-width:720px){.ex-arrow{transform:rotate(90deg);padding:4px 0;}}
+  .ex-why{margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);font-size:13px;color:var(--muted);}
+  .ex-why b{color:var(--text);font-weight:650;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">StyleBI Shell · Decision Rubric</p>
+    <h1>Button Variant Rubric</h1>
+    <p class="lede">The rules I apply to each flagged call-site once the enumeration inventory lands. Each judgment case from the Consolidation Plan §6 is written here as an explicit <b>if → then</b>, a default, and the lint assertion it maps to — so resolving the inventory is mechanical, and the lint rule and worksheet read from one source.</p>
+    <div class="meta">
+      <span>applies to: Consolidation Plan §6</span>
+      <span>feeds: §5 worksheet + lint rule</span>
+      <span>default when unsure → Ghost</span>
+    </div>
+  </header>
+
+  <!-- THE LAW -->
+  <section>
+    <h2>The one law</h2>
+    <div class="law">
+      <p class="big">Exactly one Primary per scope. Never two.</p>
+      <p>Primary marks <em>the</em> action that advances the scope's purpose. If you can't say which single action that is, the answer is usually that there's no primary — not two.</p>
+      <p class="scope"><b>A "scope" is:</b> one dialog/modal footer · one page-header action region · one toolbar · one card or panel with its own actions. Nested panels each get their own scope (and may each have one primary).</p>
+    </div>
+  </section>
+
+  <!-- RULES -->
+  <section>
+    <h2>Rules</h2>
+
+    <!-- R1 -->
+    <div class="rule">
+      <div class="rule-head"><span class="rid">R1</span><span class="rname">Picking the Primary</span><span class="rdefault">when 2+ primaries found</span></div>
+      <div class="rule-body">
+        <p class="rule-line">When a scope has multiple <code>.btn-primary</code>, demote until one remains — or none.</p>
+        <div class="flow">
+          <div class="cond"><div class="q">One action clearly <b>completes / confirms</b> the scope's purpose (Save, Create, OK, Apply)?</div><div class="ans"><button class="btn btn-primary">Save</button><span class="cls">it stays primary; rest → secondary/ghost</span></div></div>
+          <div class="cond"><div class="q">The candidates are <b>parallel choices of equal weight</b> (SVG vs PNG, Day vs Week)?</div><div class="ans"><button class="btn btn-secondary">SVG</button><span class="cls">all → secondary; scope has no primary</span></div></div>
+          <div class="cond"><div class="q">One of those parallel choices is the <b>marked default</b> (<code>defaultFocus</code>, most common path)?</div><div class="ans"><button class="btn btn-primary">PNG</button><span class="cls">default → primary, others → secondary</span></div></div>
+        </div>
+        <div class="tiebreak"><b>Tie-breaker:</b> if no action confirms the scope and none is a marked default, make them all Secondary. A scope with no primary is valid; a scope with two is not.</div>
+        <div class="lint"><span class="lbl">LINT</span><span>count(<code>.btn-primary</code>) within a footer/header scope must be <code>≤ 1</code>.</span></div>
+      </div>
+    </div>
+
+    <!-- R2 -->
+    <div class="rule">
+      <div class="rule-head"><span class="rid">R2</span><span class="rname">Dismiss is always Ghost</span><span class="rdefault">canonical: .btn-ghost</span></div>
+      <div class="rule-body">
+        <p class="rule-line">Cancel / Close / Dismiss / Back is <b>always</b> <code>.btn-ghost</code> — never secondary, never primary. It sits to the left of the affirmative action.</p>
+        <div class="flow">
+          <div class="cond"><div class="q">Button's role is to <b>dismiss without committing</b> (Cancel, Close, Not now)?</div><div class="ans"><button class="btn btn-ghost">Cancel</button><span class="cls">.btn-ghost</span></div></div>
+        </div>
+        <div class="tiebreak"><b>Why one variant:</b> today dismiss is split across <code>.btn-default</code> and <code>.btn-secondary</code> (e.g. <code>image-format-select</code>). Pinning it to Ghost removes a whole class of inconsistency in one rule.</div>
+        <div class="lint"><span class="lbl">LINT</span><span>a button whose label matches the dismiss set must use <code>.btn-ghost</code>.</span></div>
+      </div>
+    </div>
+
+    <!-- R3 -->
+    <div class="rule">
+      <div class="rule-head"><span class="rid">R3</span><span class="rname">Danger: CTA vs. inline</span><span class="rdefault">never blind-replace</span></div>
+      <div class="rule-body">
+        <p class="rule-line">Two destructive forms, chosen by <b>placement</b>, not by the word "delete".</p>
+        <div class="flow">
+          <div class="cond"><div class="q">Is it the <b>affirmative/confirm action of a destructive dialog</b> (the thing the dialog exists to do)?</div><div class="ans"><button class="btn btn-danger">Delete</button><span class="cls">.btn-primary.is-danger</span></div></div>
+          <div class="cond"><div class="q">Is it an <b>inline / row / toolbar</b> destructive action among other actions?</div><div class="ans"><button class="btn btn-danger-ghost">Remove</button><span class="cls">.btn-ghost.is-danger</span></div></div>
+        </div>
+        <div class="tiebreak"><b>Tie-breaker:</b> if it occupies the primary slot of a footer → CTA form. Otherwise → inline form. The danger CTA <em>replaces</em> the primary (R1 still holds: one emphasis action).</div>
+        <div class="lint"><span class="lbl">LINT</span><span>flag bare <code>.btn-danger</code> for manual review; it must resolve to <code>.is-danger</code> on primary or ghost.</span></div>
+      </div>
+    </div>
+
+    <!-- R4 -->
+    <div class="rule">
+      <div class="rule-head"><span class="rid">R4</span><span class="rname">Secondary vs. Ghost</span><span class="rdefault">default → Ghost</span></div>
+      <div class="rule-body">
+        <p class="rule-line">This is the subtle one. <b>Ghost is the default for supporting actions.</b> Secondary is rationed — promote only for a reason.</p>
+        <div class="flow">
+          <div class="cond"><div class="q">Is it the <b>single most prominent action in a region that has no primary</b> (e.g. a header whose only action is "Import")?</div><div class="ans"><button class="btn btn-secondary">Import</button><span class="cls">.btn-secondary</span></div></div>
+          <div class="cond"><div class="q">Does it <b>pair against a primary</b> as the clear alternative that needs weight to be seen?</div><div class="ans"><button class="btn btn-secondary">Import</button><span class="cls">.btn-secondary</span></div></div>
+          <div class="cond"><div class="q">Everything else — routine, repeated, or low-stakes supporting actions.</div><div class="ans"><button class="btn btn-ghost">Add field</button><span class="cls">.btn-ghost</span></div></div>
+        </div>
+        <div class="tiebreak"><b>Budget &amp; tie-breaker:</b> aim for <b>at most one Secondary per scope</b>. When genuinely unsure between the two, choose Ghost — under-emphasis is cheaper to fix than a flat hierarchy.</div>
+        <div class="lint"><span class="lbl">LINT</span><span>warn on <code>≥ 2 .btn-secondary</code> in one scope (soft — review, not block).</span></div>
+      </div>
+    </div>
+
+    <!-- R5 -->
+    <div class="rule">
+      <div class="rule-head"><span class="rid">R5</span><span class="rname">Icon buttons are square Ghosts</span><span class="rdefault">.btn-ghost.btn-icon</span></div>
+      <div class="rule-body">
+        <p class="rule-line">Every icon-only button is <code>.btn-ghost.btn-icon</code>: transparent at rest, hover-fill, 1:1. No bordered icon buttons, no borrowed <code>.btn-light-no-bg</code>.</p>
+        <div class="flow">
+          <div class="cond"><div class="q">Icon-only, no text label (toolbar action, row ⋮, close ✕)?</div><div class="ans"><button class="btn btn-ghost btn-icon" style="width:30px;padding:0;">⋮</button><span class="cls">.btn-ghost.btn-icon</span></div></div>
+        </div>
+        <div class="lint"><span class="lbl">LINT</span><span>icon-only buttons must carry <code>.btn-icon</code> and resolve to the ghost tier.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORKED EXAMPLE -->
+  <section>
+    <h2>Worked example — the rubric resolves image-format-select</h2>
+    <div class="ex">
+      <p class="exh">Select Image Format — dialog footer</p>
+      <p class="exf">vsobjects/dialog/image-format-select.component.html : 22–24</p>
+      <div class="ex-grid">
+        <div class="ex-col">
+          <p class="ch">Today</p>
+          <div class="ex-row">
+            <button class="btn btn-primary">SVG</button>
+            <button class="btn btn-primary">PNG</button>
+            <button class="btn btn-secondary">Cancel</button>
+          </div>
+          <p class="ex-why">Two primaries, plus a dismiss using the non-canonical secondary.</p>
+        </div>
+        <div class="ex-arrow">→</div>
+        <div class="ex-col after">
+          <p class="ch after">Resolved</p>
+          <div class="ex-row">
+            <button class="btn btn-secondary">SVG</button>
+            <button class="btn btn-primary">PNG</button>
+            <button class="btn btn-ghost">Cancel</button>
+          </div>
+          <p class="ex-why"><b>R1:</b> SVG/PNG are parallel choices, but PNG carries <code>defaultFocus</code> → PNG primary, SVG secondary. <b>R2:</b> Cancel → ghost.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>
